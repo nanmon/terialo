@@ -5,19 +5,22 @@ import { ICard } from "../data/cards";
 
 interface CardProps {
 	card: ICard
-	speak?: boolean
+	speak?: number
 	index?: number
 }
 
-export function Card({ card, speak = false, index }: CardProps) {
+export function Card({ card, speak, index }: CardProps) {
 	useEffect(() => {
-		if (speak) Speech.speak(card.name, { rate: 1 })
+		if (speak != null) {
+			const rate = speak >= 1500 ? 1 : 1500/speak
+			Speech.stop().then(() => Speech.speak(card.name, { rate }))
+		}
 	}, [card])
 
 
 	return (
 		<View>
-			<Text>{index && `${index + 1}. `}{card.name}</Text>
+			<Text>{index != null && `${index + 1}. `}{card.name}</Text>
 		</View>
 	)
 }

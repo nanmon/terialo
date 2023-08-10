@@ -1,9 +1,34 @@
 import { useEffect, useMemo, useState } from "react";
-import { View } from "react-native";
-import { cards } from "../data/cards";
+import { View, StyleSheet, FlatList } from "react-native";
+import { ICard, cards } from "../data/cards";
 import { Card } from "./Card";
 
-export function Dealer() {
+interface DealerProps {
+	speed: number
+}
+
+const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		flexDirection: 'row',
+		alignItems: 'stretch',
+	}
+})
+
+interface CardListProps {
+	cards: ICard[]
+}
+function CardList({ cards }: CardListProps) {
+	return (
+		<FlatList
+			data={cards}
+			renderItem={({ item, index }) => <Card card={item} index={index}/>}
+			keyExtractor={card => card.name}
+		/>
+	)
+}
+
+export function Dealer({ speed }: DealerProps) {
 	const deck = useMemo(() => {
 		return [...cards].sort(() => Math.random() - 0.5)
 	}, [])
@@ -16,17 +41,15 @@ export function Dealer() {
 		if (isFinished) return
 		const intervalId = setInterval(() => {
 			setCurrentIndex(index => index + 1)
-		}, 2000)
+		}, speed)
 		return () => clearInterval(intervalId)
-	}, [isFinished])
+	}, [isFinished, speed])
 
 	return (
-		<View>
+		<View style={styles.container}>
 			{currentCard
-				? <Card card={currentCard} speak />
-				: deck.map((card, index) => (
-					<Card key={card.name} card={card} index={index} />
-				))
+				? <Card card={currentCard} speak={speed} />
+				: <CardList cards={deck} />
 			}
 		</View>
 	)
