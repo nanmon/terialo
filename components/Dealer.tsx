@@ -11,7 +11,8 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		flexDirection: 'row',
-		alignItems: 'stretch',
+		alignItems: 'center',
+		justifyContent: 'center',
 	}
 })
 
@@ -22,20 +23,16 @@ function CardList({ cards }: CardListProps) {
 	return (
 		<FlatList
 			data={cards}
-			renderItem={({ item, index }) => <Card card={item} index={index}/>}
+			horizontal
+			contentContainerStyle={{ gap: 16, paddingHorizontal: 16 }}
+			renderItem={({ item, index }) => <Card card={item} index={index} />}
 			keyExtractor={card => card.name}
 		/>
 	)
 }
 
-export function Dealer({ speed }: DealerProps) {
-	const deck = useMemo(() => {
-		return [...cards].sort(() => Math.random() - 0.5)
-	}, [])
-
+const useCurrentCard = (deck: ICard[], speed: number) => {
 	const [currentIndex, setCurrentIndex] = useState(0)
-	const currentCard = deck.at(currentIndex)
-
 	const isFinished = currentIndex >= deck.length
 	useEffect(() => {
 		if (isFinished) return
@@ -44,6 +41,15 @@ export function Dealer({ speed }: DealerProps) {
 		}, speed)
 		return () => clearInterval(intervalId)
 	}, [isFinished, speed])
+
+	return deck.at(currentIndex)
+}
+
+export function Dealer({ speed }: DealerProps) {
+	const deck = useMemo(() => {
+		return [...cards].sort(() => Math.random() - 0.5)
+	}, [])
+	const currentCard = useCurrentCard(deck, speed)
 
 	return (
 		<View style={styles.container}>
